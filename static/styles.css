@@ -1,0 +1,44 @@
+.jumbotron {
+    background: url(godfather.png) no-repeat center;
+    background-size: cover;
+    color: #ffcc00;
+    text-align: center;
+    height: 60%;
+}
+
+.header {
+    color: white;
+}
+
+#rqst {
+    color: #0099cc;
+}
+
+#rpls {
+    color: #009933;
+}
+
+.requests {
+    background-color: #dddddd;
+}
+
+.requests:hover {
+    background-color: #eeeeee;
+}
+
+.received-message {
+    background-color: #222;
+    color: white;
+}
+
+.received-message:hover {
+    background-color: #444;
+}
+
+.sent-message {
+    background-color: #ccc;
+}
+
+.sent-message {
+    background-color: #eee;
+}

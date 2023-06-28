@@ -1,0 +1,164 @@
+{% extends "layout.html" %}
+
+{% block map %}
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- HERE JavaScript Libs & Style Sheets-->
+    <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+    <!-- HERE JavaScript Libs & Style Sheets end-->
+{% endblock %}
+
+{% block title %}
+    Request No. {{ info.request_id }}
+{% endblock %}
+
+{% block main %}
+    <h3>{{ info.title }}</h3>
+    <div class="row">
+        <div class="col-sm-6">
+            <form action="/user" method="post">
+                <input name="userid" type="hidden" value="{{ info.user_id }}">
+                <h5>User: <button type="submit" class="btn btn-light">{{ info.username }}</button></h5>
+            </form>
+        </div>
+        <div class="col-sm-3">
+            <h5>Rating: <span class="badge badge-primary">{{ info.rate }}</span></h5>
+        </div>
+        <div class="col-sm-3">
+            <p>Votes: {{ info.votes }}</p>
+        </div>
+    </div>
+    <p>{{ info.description }}</p><br>
+    <div class="row">
+        <div class="col">
+            <h5>Difficulty:
+                <span class="badge badge-warning">
+                    {% if info.difficulty == 1 %}
+                        Very easy
+                    {% elif info.difficulty == 2 %}
+                        Easy
+                    {% elif info.difficulty == 3 %}
+                        Mild
+                    {% elif info.difficulty == 4 %}
+                        Medium
+                    {% elif info.difficulty == 5 %}
+                        Demanding
+                    {% elif info.difficulty == 6 %}
+                        Hard
+                    {% elif info.difficulty == 7 %}
+                        Specialized
+                    {% endif %}
+                </span>
+            </h5>
+        </div>
+        <div class="col">
+            <h5>Request date: <span class="badge badge-light">{{ info.req_date }}</span></h5>
+        </div>
+        <div class="col">
+            <h5>Deadline: <span class="badge badge-danger">{{ info.deadline }}</span></h5>
+        </div>
+        <div class="col">
+            <h5>Completion time:
+                <span class="badge badge-info">
+                    {% if info.time_elapse == "00:15:00" %}
+                        Less than 15 minutes
+                    {% elif info.time_elapse == "01:00:00" %}
+                        15 to 59 minutes
+                    {% elif info.time_elapse == "03:00:00" %}
+                        1 to 3 hours
+                    {% elif info.time_elapse == "05:00:00" %}
+                        3 to 5 hours
+                    {% elif info.time_elapse == "10:00:00" %}
+                        5 to 10 hours
+                    {% elif info.time_elapse == "24:00:00" %}
+                        10 to 24 hours
+                    {% elif info.time_elapse == "72:00:00" %}
+                        1 to 3 days
+                    {% elif info.time_elapse == "168:00:00" %}
+                        3 to 7 days
+                    {% elif info.time_elapse == "336:00:00" %}
+                        1 to 2 weeks
+                    {% elif info.time_elapse == "720:00:00" %}
+                        2 to 4 weeks
+                    {% elif info.time_elapse == "1140:00:00" %}
+                        1 to 2 months
+                    {% elif info.time_elapse == "1140:00:01" %}
+                        more than 2 months
+                    {% endif %}
+                </span>
+            </h5>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h5>Category: <span class="badge badge-info">{{ info.category }}</span></h5>
+        </div>
+        <div class="col">
+            <h5>Distance: <span class="badge badge-secondary">{{ info.distance }} MI</span></h5>
+        </div>
+        <div class="col">
+            <a href="#map"><button type="button" class="btn btn-info">Location</button></a>
+        </div>
+        <div class="col">
+            <h5>Reward: <span class="badge badge-success">{{ info.offer }}</span></h5>
+        </div>
+    </div><br>
+    <form action="/reply_form" method="post">
+        <input name="rqst" type="hidden" value="{{ info.request_id }}">
+        <button type="submit" class="btn btn-dark">Send reply</button>
+    </form>
+    <a href="/help"><button type="button" class="btn btn-secondary">Go back</button></a>
+
+    <h3 id="map">Location:</h3>
+    <div style="width: 50vw; height: 50vh" class="text-center" id="mapContainer"></div>
+    <script>
+        //Step 1: initialize communication with the platform
+        // Replace variable YOUR_API_KEY with your own apikey
+        var platform = new H.service.Platform({
+            'apikey': '{{ apikey }}'
+        });
+
+        const lat = {{ info.lat }};
+        const lng = {{ info.lng }};
+
+        var defaultLayers = platform.createDefaultLayers();
+        //Step 2: initialize a map - this map is centered over Europe
+        var map = new H.Map(document.getElementById('mapContainer'),
+            defaultLayers.vector.normal.map,
+            {
+                center: { lat: lat, lng: lng },
+                zoom: 13,
+                pixelRatio: window.devicePixelRatio || 1
+            }
+        );
+        // add a resize listener to make sure that the map occupies the whole container
+        window.addEventListener('resize', () => map.getViewPort().resize());
+        //Step 3: make the map interactive
+        // MapEvents enables the event system
+        // Behavior implements default interactions for pan/zoom (also on mobile touch environments)
+        var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+
+        // Create the default UI components
+        var ui = H.ui.UI.createDefault(map, defaultLayers);
+
+        // Marker code goes here
+        var LocationOfMarker = { lat: lat, lng: lng };
+
+        // Create a marker using the previously instantiated icon:
+        var marker = new H.map.Marker(LocationOfMarker);
+
+        // Add the marker to the map:
+        map.addObject(marker);
+
+        // Optionally,
+        //Show the marker in the center of the map
+        map.setCenter(LocationOfMarker)
+
+        //Zooming so that the marker can be clearly visible
+        map.setZoom(8)
+    </script>
+
+{% endblock %}

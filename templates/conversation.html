@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+{% block map %}{% endblock %}
+
+{% block title %}
+    Conversation
+{% endblock %}
+
+{% block main %}
+    {% if user == requser %}
+        <form action="/single_rep" method="post">
+            <input name="repid" type="hidden" value="{{ repid }}">
+            <h2>Conversation for <button type="submit" class="btn btn-light">{{ title }}</button></h2><br><hr>
+        </form>
+    {% else %}
+        <form action="/myreplies" method="post">
+            <input name="rep" type="hidden" value="{{ repid }}">
+            <h2>Conversation for <button type="submit" class="btn btn-light">{{ title }}</button></h2><br><hr>
+        </form>
+    {% endif %}
+    {% for msg in conv %}
+        {% if msg.sender_id == user %}
+            <div class="text-sm-right rounded sent-message p-2">
+                <h3 class="text-info">{{ msg.username }}</h3>
+                <h4>{{ msg.message }}</h4>
+                <p class="text-secondary">{{ msg.msg_date }}</p>
+            </div>
+        {% else %}
+            <div class="text-sm-left rounded received-message p-2">
+                <h3 class="text-info">{{ msg.username }}</h3>
+                <h4>{{ msg.message }}</h4>
+                <p class="text-secondary">{{ msg.msg_date }}</p>
+            </div>
+        {% endif %}
+    {% endfor %}
+    <form action="/conversation" method="post">
+        <textarea name="message" class="form-control" rows="5" placeholder="Write something"></textarea>
+        <input name="repid" type="hidden" value="{{ repid }}">
+        <button type="submit" class="btn btn-dark">Send</button>
+    </form>
+    <a href="/myrequests"><button type="button" class="btn btn-secondary">My requests</button></a>
+{% endblock %}

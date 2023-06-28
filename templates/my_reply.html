@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+
+{% block map %}
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- HERE JavaScript Libs & Style Sheets-->
+    <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+    <!-- HERE JavaScript Libs & Style Sheets end-->
+{% endblock %}
+
+{% block title %}
+    Reply No. {{ rep.reply_id }}
+{% endblock %}
+
+{% block main %}
+    <h3>Reply to: {{ rep.title }}</h3>
+    <div class="row">
+        <div class="col">
+            <form action="/user" method="post">
+                <input name="userid" type="hidden" value="{{ rep.id }}">
+                <h5>Requestor: <button type="submit" class="btn btn-light">{{ rep.username }}</button></h5>
+            </form>
+        </div>
+        <div class="col">
+            <p>Rating: <span class="badge badge-secondary">{{ rep.rate }}</span></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p>Distance: <span class="badge badge-info">{{ rep.distance }} MI</span></p>
+        </div>
+        <div class="col">
+            <a href="#map"><button type="button" class="btn btn-info">Location</button></a>
+        </div>
+    </div>
+    <p>Description: {{ rep.description }}</p>
+    <form action="/help" method="post">
+        <input name="rqst" type="hidden" value="{{ rep.request_id }}">
+        <button type="submit" class="btn btn-dark">See request</button>
+    </form><hr><br>
+    <h4>My reply</h4>
+    <p>{{ rep.details }}</p>
+    <div class="row">
+        <div class="col">
+            <p>Status: <span class="badge badge-primary">{{ rep.status }}</span></p>
+        </div>
+        <div class="col">
+            <p>Offer: </p><span class="badge badge-primary">{{ rep.offer }}</span>
+        </div>
+        <div class="col">
+            <p>Deadline: </p><span class="badge badge-warning">{{ rep.deadline }}</span>
+        </div>
+        <div class="col">
+            <p>Date: {{ rep.rep_date }}</p>
+        </div>
+    </div>
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete">Delete reply</button>
+    <div class="modal fade" id="delete">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Are you sure you want to delete this reply?</h4>
+                    <button type="button" class="close" data-dismiss="modal">x</button>
+                </div>
+                <div class="modal-body">
+                    <form action="/delete_reply" method="post">
+                        <input name="repid" type="hidden" value="{{ repid }}">
+                        <button type="submit" class="btn btn-dark">Yes</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% if rep.status == "accepted" %}
+        <form action="/conversation" method="post">
+            <input name="repid" type="hidden" value="{{ repid }}">
+            <button type="submit" class="btn btn-dark">Go to conversation</button>
+        </form>
+    {% elif rep.status == "completed" %}
+        <h4 class="text-success">Request completed!</h4>
+        {% if seen == 0 %}
+        <form action="/rate_req" method="post">
+            <input name="repid" type="hidden" value="{{ repid }}">
+            <input name="userid" type="hidden" value="{{ rep.id }}">
+            <button type="submit" class="btn btn-dark">Rate requestor</button>
+        </form>
+        {% endif %}
+    {% endif %}
+    <a href="/myrequests"><button type="button" class="btn btn-secondary">My requests</button></a>
+    <a href="/help"><button type="button" class="btn btn-secondary">All requests</button></a><hr><br>
+    <h3 id="map">Location:</h3>
+    <div class="text-center" style="width: 50vw; height: 50vh" id="mapContainer"></div>
+    <script>
+        //Step 1: initialize communication with the platform
+        // Replace variable YOUR_API_KEY with your own apikey
+        var platform = new H.service.Platform({
+            'apikey': '{{ apikey }}'
+        });
+
+        const lat = {{ rep.lat }};
+        const lng = {{ rep.lng }};
+
+        var defaultLayers = platform.createDefaultLayers();
+        //Step 2: initialize a map - this map is centered over Europe
+        var map = new H.Map(document.getElementById('mapContainer'),
+            defaultLayers.vector.normal.map,
+            {
+                center: { lat: lat, lng: lng },
+                zoom: 13,
+                pixelRatio: window.devicePixelRatio || 1
+            }
+        );
+        // add a resize listener to make sure that the map occupies the whole container
+        window.addEventListener('resize', () => map.getViewPort().resize());
+        //Step 3: make the map interactive
+        // MapEvents enables the event system
+        // Behavior implements default interactions for pan/zoom (also on mobile touch environments)
+        var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+
+        // Create the default UI components
+        var ui = H.ui.UI.createDefault(map, defaultLayers);
+
+        // Marker code goes here
+        var LocationOfMarker = { lat: lat, lng: lng };
+
+        // Create a marker using the previously instantiated icon:
+        var marker = new H.map.Marker(LocationOfMarker);
+
+        // Add the marker to the map:
+        map.addObject(marker);
+
+        // Optionally,
+        //Show the marker in the center of the map
+        map.setCenter(LocationOfMarker)
+
+        //Zooming so that the marker can be clearly visible
+        map.setZoom(8)
+    </script>
+{% endblock %}

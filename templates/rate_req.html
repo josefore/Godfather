@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block map %}{% endblock %}
+
+{% block title %}
+    Conversation
+{% endblock %}
+
+{% block main %}
+    <form action="/user" method="post">
+        <input name="userid" type="hidden" value="{{ userid }}">
+        <h4>Rate user <button type="submit" class="btn btn-light" target="_blank">{{ username }}</button></h4>
+    </form>
+    <h3>Task:</h3>
+    <h4>{{ repinfo.title }}</h4>
+    <p>{{ repinfo.description }}</p>
+    <h4>Reward: <span class="badge badge-success">{{ repinfo.offer }}</span></h4>
+    <p>{{ repinfo.details }}</p>
+    <p class="text-secondary">{{ repinfo.rep_date }}</p>
+    <form action="/rate_post" method="post">
+        <div class="form-group">
+            <label for="rate">Rate: </label>
+            <select class="mdb-select md-form" name="rate" id="rate">
+                <option value="" disabled selected>Select rate</option>
+                {% for i in range (1, 11) %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="comments">Comments (optional):</label>
+            <textarea name="comments" class="form-control" rows="5" id="comments" placeholder="Additional information (optional)"></textarea>
+            <input name="userid" type="hidden" value="{{ userid }}">
+            <input name="repid" type="hidden" value="{{ repid }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Rate</button>
+    </form>
+{% endblock %}

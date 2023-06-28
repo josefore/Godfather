@@ -1,0 +1,41 @@
+{% extends "layout.html" %}
+
+{% block map %}{% endblock %}
+
+{% block title %}
+    Pay
+{% endblock %}
+
+{% block main %}
+    <h2>Comply transaction</h2>
+    <h3>{{ info.title }}</h3>
+    <p>{{ info.description }}</p><br><hr>
+    <h3>Reply:</h3>
+    <form action="/user" method="post">
+        <input name="userid" type="hidden" value="{{ info.id }}">
+        <h4>Replier: <button type="submit" class="btn btn-light" target="_blank">{{ info.username }}</button></h4>
+    </form>
+    <h4>Agreed offer: <span class="badge badge-info">{{ info.offer }}</span></h4>
+    <p>{{ info.details }}</p>
+    <h4>Agreed deadline: <span class="badge badge-warning">{{ info.deadline }}</span></h4>
+    <form action="/comply_pay" method="post">
+        <div class="form-group">
+            <label for="rate">Rate: </label>
+            <select class="mdb-select md-form" name="rate" id="rate">
+                <option value="" disabled selected>Select rate</option>
+                {% for i in range (1, 11) %}
+                    <option value="{{ i }}">{{ i }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="comments">Comments (optional):</label>
+            <textarea name="comments" class="form-control" rows="5" id="comments" placeholder="Additional information (optional)"></textarea>
+            <input name="userid" type="hidden" value="{{ info.id }}">
+            <input name="offer" type="hidden" value="{{ info.offer }}">
+            <input name="reqid" type="hidden" value="{{ info.request_id }}">
+            <input name="repid" type="hidden" value="{{ repid }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Comply!</button>
+    </form>
+{% endblock %}

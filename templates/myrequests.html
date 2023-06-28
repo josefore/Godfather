@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block map %}{% endblock %}
+
+{% block title %}
+    My requests
+{% endblock %}
+
+{% block main %}
+    <h2>My requests</h2>
+    <div class="container">
+        {% for req in requests %}
+            <div class="rounded requests p-2">
+                <div class="row">
+                    <div class="col-sm-9">
+                        <h3>{{ req.title }}</h3>
+                    </div>
+                    <div class="col.sm-3">
+                        <form action="/replies" method="post">
+                            <input name="req" type="hidden" value="{{ req.request_id }}">
+                            <h5>Replies: <button type="submit" class="btn btn-success">{{ req.reps }}</button></h5>
+                        </form>
+                    </div>
+                </div>
+                <p>{{ req.description }}</p>
+                <div class="row">
+                    <div class="col">
+                        <h5>Offer: <span class="badge badge-dark">{{ req.offer }}</span></h5>
+                    </div>
+                    <div class="col">
+                        <h5>Request date: <span class="badge badge-secondary">{{ req.req_date }}.</span></h5>
+                    </div>
+                    <div class="col">
+                        <form action="/myrequests" method="post">
+                            <input name="reqst" type="hidden" value="{{ req.request_id }}">
+                            <button type="submit" class="btn btn-primary">See request</button>
+                        </form>
+                    </div>
+                </div>
+            </div><hr>
+        {% endfor %}
+
+        <div="container">
+            <a href="/request"><button type="button" class="btn btn-dark">New request</button></a>
+        </div>
+    </div>
+{% endblock %}

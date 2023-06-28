@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block map %}{% endblock %}
+
+{% block title %}
+    Hello
+{% endblock %}
+
+{% block main %}
+    <div class="container">
+        <div class="alert alert-secondary alert-dismissible fade show">
+            <button type="button" class="close" data-dismiss="alert">Got it!</button>
+            <strong>Receive 200 Favor Tokens for free!</strong> <a href="/signin">Create a new free account</a> to claim free Tokens!
+        </div>
+    </div>
+    <h1>Welcome to Godfather</h1>
+    <h3>The world needs you, and you need the world!</h3>
+    <h4>Ready to become a godfather?</h4>
+    <p>1. <a href="/login">Log in</a> or <a href="/signin"> create a new free account</a>.</p>
+    <p>2. Check the help requests near your zone.</p>
+    <p>3. Help someone and receive Favor Tokens.</p>
+    <p>4. Use those Tokens to ask for a favor.</p>
+    <p>5. You don't need money to get any help.</p>
+    <p>6. Make the world a better place!</p><hr><br>
+    <div class="text-center">
+        <a href="/login"><button type="button" class="btn btn-secondary">Log in</button></a> or
+        <a href="/signin"><button type="button" class="btn btn-secondary">Sign in</button></a>
+    </div>
+
+{% endblock %}

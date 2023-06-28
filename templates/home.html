@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block map %}{% endblock %}
+
+{% block title %}
+    Home
+{% endblock %}
+
+{% block main %}
+
+    <h1 class="text-center">Welcome to Godfather!</h1>
+    {% for pay in pays %}
+        {% if pay.seen == 0 %}
+            <div class="container">
+                <div class="alert alert-success alert-dismissible fade show">
+                    <button type="button" class="close" data-dismiss="alert">x</button>
+                    <form action="/rate_req" method="post">
+                        <input name="userid" type="hidden" value="{{ pay.sender_id }}">
+                        <input name="repid" type="hidden" value="{{ pay.reply_id }}">
+                        <strong>You have received {{ pay.amount }} tokens for your service!   </strong><button type="submit" class="btn btn-primary">See reply</button>
+                    </form>
+                </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+    {% if loc == 0 %}
+        <div class="container">
+            <div class="alert alert-warning alert-dismissible fade show">
+                <button type="button" class="close" data-dismiss="alert">x</button>
+                <strong>You haven't set your location yet!</strong> <a href="/location">Set my current location</a>
+            </div>
+        </div>
+    {% endif %}
+
+    <div class="row text-center">
+        <!-- Left panel help someone -->
+        <div class="col">
+            <h2>Lend a hand on someone who needs you and become a Godfather</h2>
+            <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#learn-give">Learn more</button>
+            <div id="learn-give" class="collapse">
+                <p>1. Set your current <a href="/location">location</a>.</p>
+                <p>2. In the <a href="/help">browser</a>, find people that you can help.</p>
+                <p>3. Make an <a href="#" data-toggle="tooltip" title="Favor Tokens or favors">offer for each favor</a> and wait for the replies.</p>
+                <p>4. Get to an agreement with the people that needs you.</p>
+                <p>5. Help.</p>
+                <p>6. Receive your reward.</p>
+                <p>7. Use your Favor Tokens to get the help you need.</p>
+            </div>
+            <a href="/help"><button type="button" class="btn btn-dark">Start to help</button></a>
+        </div>
+        <!-- Right panel get help -->
+        <div class="col">
+            <h2>Get the help you need without spending money</h2>
+            <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#learn-receive">Learn more</button>
+            <div id="learn-receive" class="collapse">
+                <p>1. Create a new <a href="/request">favor request.</a></p>
+                <p>2. Fill in all the fields with the details of the favor you are requesting. Try to be as specific as you can.</p>
+                <p>3. Submit your favor form with an <a href="#" data-toggle="tooltip" title="Favor Tokens or favors">offer.</a></p>
+                <p>4. Wait for responses.</p>
+                <p>5. Check each volunteer reply and choose the one that meets better your needs</p>
+                <p>6. Get in contact with that person to get to a deal.</p>
+                <p>7. Get the help you need</p>
+                <p>8. Pay the volunteer the Favor Tokens agreed to close the deal.</p>
+                <p>9. Grade the volunteer according to her/his performance and efficiency. You can also add some comments on how she/he did.</p>
+                <p>10. Volunteer to other users requested favors to earn more Favor Tokens!</p><br><hr>
+            </div>
+            <a href="/request"><button type="button" class="btn btn-dark">Make a request</button></a>
+        </div>
+    </div>
+    <div class="text-center">
+        <h4>Your current tokens:</h4>
+        <h3>{{ tokens }}</h3><br><br>
+        <p>You have <b id="rqst">{{ requests }}</b> requests and <b id="rpls">{{ replies }}</b> replies</p>
+        <a href="/myrequests"><button type="button" class="btn btn-light">My requests</button></a>
+        <a href="/myreplies"><button type="button" class="btn btn-light">My replies</button></a>
+    </div>
+
+    <script>
+        $(document).ready(function(){
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+
+{% endblock %}

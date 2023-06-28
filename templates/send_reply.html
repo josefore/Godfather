@@ -1,0 +1,143 @@
+{% extends "layout.html" %}
+
+{% block map %}
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- HERE JavaScript Libs & Style Sheets-->
+    <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+    <!-- HERE JavaScript Libs & Style Sheets end-->
+{% endblock %}
+
+{% block title %}
+    New reply
+{% endblock %}
+
+{% block main %}
+    <h3>New reply</h3><hr>
+    <h5>Replying to...</h5>
+    <h4>{{ data.title }}</h4>
+    <button type="button" class="btn btn-secondary" data-toggle="collapse" data-target="#see">See more</button>
+    <div id="see" class="collapse">
+        <p>{{ data.description }}</p>
+        <div class="row">
+            <div class="col">
+                <h5>Deadline: <span class="badge badge-danger">{{ data.deadline }}</span></h5>
+            </div>
+            <div class="col">
+                <h5>Sugested offer: <span class="badge badge-success">{{ data.offer }}</span></h5>
+            </div>
+            <div class="col">
+                <form action="/user" method="post">
+                    <input name="userid" type="hidden" value="{{ data.id }}">
+                    <h5>User: <button type="submit" class="btn btn-light">{{ data.username }}</button></h5>
+                </form>
+            </div>
+            <div class="col">
+                <a href="#map"><button type="button" class="btn btn-info">Location</button></a>
+            </div>
+        </div>
+    </div>
+    <form action="/send_reply" method="post">
+        <div class="form-group">
+            <label for="offer">Your offer:</label>
+            <input type="text" name="offer" class="form-control" placeholder="Suggested: {{ data.offer }}" autocomplete="off" id="offer">
+        </div>
+        <div class="form-group">
+            <label for="deadline">Deadline:</label>
+            <div class="form-group">
+                <label for="day">Day:</label>
+                <select class="mdb-select md-form" name="day" id="day">
+                    <option value="" disabled selected>Day</option>
+                    {% for i in range(33) %}
+                        <option vlaue="{{ i }}">{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="month">Month:</label>
+                <select class="mdb-select md-form" name="month" id="month">
+                    <option value="" disabled selected>Month</option>
+                    <option value="01">Jan</option>
+                    <option value="02">Feb</option>
+                    <option value="03">Mar</option>
+                    <option value="04">Apr</option>
+                    <option value="05">May</option>
+                    <option value="06">Jun</option>
+                    <option value="07">Jul</option>
+                    <option value="08">Aug</option>
+                    <option value="09">Sep</option>
+                    <option value="10">Oct</option>
+                    <option value="11">Nov</option>
+                    <option value="12">Dec</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="year">Year:</label>
+                <select class="mdb-select md-form" name="year" id="year">
+                    <option value="" disabled selected>Year</option>
+                    {% for i in range(2021, 2040) %}
+                        <option vlaue="{{ i }}">{{ i }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="details">Details:</label>
+            <textarea name="details" class="form-control" rows="5" id="details" placeholder="Send a message to the requestor"></textarea>
+        </div>
+        <input name="reqid" type="hidden" value="{{ reqid }}">
+        <button type="submit" class="btn btn-dark">Send reply</button>
+    </form><br>
+    <a href="/help"><button type="button" class="btn btn-secondary">Go back</button></a><hr><br>
+    <h3 id="map">Location:</h3>
+    <div class="text-center" style="width: 50vw; height: 50vh" id="mapContainer"></div>
+    <script>
+        //Step 1: initialize communication with the platform
+        // Replace variable YOUR_API_KEY with your own apikey
+        var platform = new H.service.Platform({
+            'apikey': '{{ apikey }}'
+        });
+
+        const lat = {{ data.lat }};
+        const lng = {{ data.lng }};
+
+        var defaultLayers = platform.createDefaultLayers();
+        //Step 2: initialize a map - this map is centered over Europe
+        var map = new H.Map(document.getElementById('mapContainer'),
+            defaultLayers.vector.normal.map,
+            {
+                center: { lat: lat, lng: lng },
+                zoom: 13,
+                pixelRatio: window.devicePixelRatio || 1
+            }
+        );
+        // add a resize listener to make sure that the map occupies the whole container
+        window.addEventListener('resize', () => map.getViewPort().resize());
+        //Step 3: make the map interactive
+        // MapEvents enables the event system
+        // Behavior implements default interactions for pan/zoom (also on mobile touch environments)
+        var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+
+        // Create the default UI components
+        var ui = H.ui.UI.createDefault(map, defaultLayers);
+
+        // Marker code goes here
+        var LocationOfMarker = { lat: lat, lng: lng };
+
+        // Create a marker using the previously instantiated icon:
+        var marker = new H.map.Marker(LocationOfMarker);
+
+        // Add the marker to the map:
+        map.addObject(marker);
+
+        // Optionally,
+        //Show the marker in the center of the map
+        map.setCenter(LocationOfMarker)
+
+        //Zooming so that the marker can be clearly visible
+        map.setZoom(8)
+    </script>
+{% endblock %}

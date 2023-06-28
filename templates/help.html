@@ -1,0 +1,111 @@
+{% extends "layout.html" %}
+
+{% block map %}{% endblock %}
+
+{% block title %}
+    Help someone
+{% endblock %}
+
+{% block main %}
+    <h2>Active requests</h2>
+    {% for req in data %}
+        <div class="rounded requests text-center p-2">
+            <div class="request-title">
+                <h4>{{ req.title }}</h4>
+            </div>
+            <div class="row request-header">
+                <div class="col">
+                    <form action="/user" method="post">
+                        <input name="userid" type="hidden" value="{{ req.id }}">
+                        <h5>User: <button type="submit" class="btn btn-light">{{ req.username }}</button></h5>
+                    </form>
+                </div>
+                <div class="col">
+                    <p>Rating: <span class="badge badge-primary">{{ req.rate }}</span></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <h5><span class="badge badge-secondary">{{ req.category }}</span></h5>
+                </div>
+                <div class="col">
+                    <h5>
+                        <span class="badge badge-warning">
+                            {% if req.difficulty == 1 %}
+                                Very easy
+                            {% elif req.difficulty == 2 %}
+                                Easy
+                            {% elif req.difficulty == 3 %}
+                                Mild
+                            {% elif req.difficulty == 4 %}
+                                Medium
+                            {% elif req.difficulty == 5 %}
+                                Demanding
+                            {% elif req.difficulty == 6 %}
+                                Hard
+                            {% elif req.difficulty == 7 %}
+                                Specialized
+                            {% endif %}
+                        </span>
+                    </h5>
+                </div>
+                <div class="col">
+                    <h5>
+                        <span class="badge badge-info">
+                            {% if req.distance == None %}
+                                Not set
+                            {% else %}
+                                {{ req.distance }} MI
+                            {% endif %}
+                        </span>
+                    </h5>
+                </div>
+                <div class="col">
+                    <h4>Reward: <span class="badge badge-success">{{ req.offer }}</span></h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <h5><span class="badge badge-light">
+                    {% if req.time_elapse == "00:15:00" %}
+                        Less than 15 minutes
+                    {% elif req.time_elapse == "01:00:00" %}
+                        15 to 59 minutes
+                    {% elif req.time_elapse == "03:00:00" %}
+                        1 to 3 hours
+                    {% elif req.time_elapse == "05:00:00" %}
+                        3 to 5 hours
+                    {% elif req.time_elapse == "10:00:00" %}
+                        5 to 10 hours
+                    {% elif req.time_elapse == "24:00:00" %}
+                        10 to 24 hours
+                    {% elif req.time_elapse == "72:00:00" %}
+                        1 to 3 days
+                    {% elif req.time_elapse == "168:00:00" %}
+                        3 to 7 days
+                    {% elif req.time_elapse == "336:00:00" %}
+                        1 to 2 weeks
+                    {% elif req.time_elapse == "720:00:00" %}
+                        2 to 4 weeks
+                    {% elif req.time_elapse == "1140:00:00" %}
+                        1 to 2 months
+                    {% elif req.time_elapse == "1140:00:01" %}
+                        more than 2 months
+                    {% endif %}</span></h5>
+                </div>
+                <div class="col">
+                    <h5>Deadline: <span class="badge badge-danger">{{ req.deadline }}</span></h5>
+                </div>
+                <div class="col">
+                    <p>Date: {{ req.req_date }}</p>
+                </div>
+                <div class="col">
+                    <form action="/help" method="post">
+                        <input name="rqst" type="hidden" value="{{ req.request_id }}">
+                        <button type="submit" class="btn btn-dark">See details</button>
+                    </form>
+                </div>
+            </div>
+        </div><hr>
+    {% endfor %}
+{% endblock %}

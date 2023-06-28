@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block map %}{% endblock %}
+
+{% block title %}
+    My replies
+{% endblock %}
+
+{% block main %}
+    {% for reply in rep %}
+        <div class="rounded requests p-2">
+            <div class="row">
+                <div class="col">
+                    <form action="/user" method="post">
+                        <input name="userid" type="hidden" value="{{ reply.id }}">
+                        <h3>Requestor: <button type="submit" class="btn btn-light">{{ reply.username }}</button></h3>
+                    </form>
+                </div>
+                <div class="col">
+                    <h4>Rating: <span class="badge badge-primary">{{ reply.rate }}</span></h4>
+                </div>
+                <div class="col">
+                    <h4>Status: <span class="badge badge-primary">{{ reply.status }}</span></h4>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <h4>Offer: <span class="badge badge-dark">{{ reply.offer }}</span></h4>
+                </div>
+                <div class="col">
+                    <h4>Request date: <span class="badge badge-secondary">{{ reply.rep_date }}.</span></h4>
+                </div>
+                <div class="col">
+                    <h4>Deadline: <span class="badge badge-danger">{{ reply.deadline }}.</span></h4>
+                </div>
+            </div>
+            <form action="/myreplies" method="post">
+                <input name="rep" type="hidden" value="{{ reply.reply_id }}">
+                <button type="submit" class="btn btn-primary">See reply</button>
+            </form>
+        </div><hr>
+    {% endfor %}
+
+    <a href="/myrequests"><button type="button" class="btn btn-dark">My requests</button></a>
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends "layout.html" %}
+
+{% block map %}
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- HERE JavaScript Libs & Style Sheets-->
+    <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+    <!-- HERE JavaScript Libs & Style Sheets end-->
+{% endblock %}
+
+{% block title %}
+    My profile
+{% endblock %}
+
+{% block main %}
+    <h2>{{ myinfo.username }}</h2>
+    <div class="row">
+        <div class="col">
+            <h5>Rating: <span class="badge badge-info">{{ myinfo.rate }}</span></h5>
+        </div>
+        <div class="col">
+            <p>Votes: <span class="badge badge-secondary">{{ myinfo.votes }}</span></p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p>E-mail: {{ myinfo.email }}</p>
+        </div>
+        <div class="col">
+            <p>Tokens: <span class="badge badge-success">{{ myinfo.tokens }}</span></p>
+        </div>
+    </div>
+    <div class="container-fluid">
+        <ul class="nav nav-tabs d-flex justify-content-around" id="tabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" id="requests-tab" href="#requests">My requests</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" id="replies-tab" href="#replies">My replies</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" id="comments-tab" href="#comments">My comments</a>
+            </li>
+        </ul><br>
+        <div class="tab-content">
+            <div id="requests" class="container tab-pane active">
+                {% for req in myrequests %}
+                    <div class="rounded requests p-2">
+                        <div class="row">
+                            <div class="col-sm-9">
+                                <h3>{{ req.title }}</h3>
+                            </div>
+                            <div class="col.sm-3">
+                                <form action="/replies" method="post">
+                                    <input name="req" type="hidden" value="{{ req.request_id }}">
+                                    <h5>Replies: <button type="submit" class="btn btn-success">{{ req.reps }}</button></h5>
+                                </form>
+                            </div>
+                        </div>
+                        <p>{{ req.description }}</p>
+                        <div class="row">
+                            <div class="col">
+                                <h5>Offer: <span class="badge badge-dark">{{ req.offer }}</span></h5>
+                            </div>
+                            <div class="col">
+                                <h5>Request date: <span class="badge badge-secondary">{{ req.req_date }}.</span></h5>
+                            </div>
+                            <div class="col">
+                                <form action="/myrequests" method="post">
+                                    <input name="reqst" type="hidden" value="{{ req.request_id }}">
+                                    <button type="submit" class="btn btn-primary">See request</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div><hr>
+                {% endfor %}
+            </div>
+            <div id="replies" class="container tab-pane fade">
+                {% for reply in myreplies %}
+                    <div class="rounded requests p-2">
+                        <div class="row">
+                            <div class="col">
+                                <form action="/user" method="post">
+                                    <input name="userid" type="hidden" value="{{ reply.id }}">
+                                    <h3>Requestor: <button type="submit" class="btn btn-light">{{ reply.username }}</button></h3>
+                                </form>
+                            </div>
+                            <div class="col">
+                                <h4>Rating: <span class="badge badge-primary">{{ reply.rate }}</span></h4>
+                            </div>
+                            <div class="col">
+                                <h4>Status: <span class="badge badge-primary">{{ reply.status }}</span></h4>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <h4>Offer: <span class="badge badge-dark">{{ reply.offer }}</span></h4>
+                            </div>
+                            <div class="col">
+                                <h4>Request date: <span class="badge badge-secondary">{{ reply.rep_date }}.</span></h4>
+                            </div>
+                            <div class="col">
+                                <h4>Deadline: <span class="badge badge-danger">{{ reply.deadline }}.</span></h4>
+                            </div>
+                        </div>
+                        <form action="/myreplies" method="post">
+                            <input name="rep" type="hidden" value="{{ reply.reply_id }}">
+                            <button type="submit" class="btn btn-primary">See reply</button>
+                        </form>
+                    </div><hr>
+                {% endfor %}
+            </div>
+            <div id="comments" class="container tab-pane fade">
+                {% for com in mycomments %}
+                    <div class="rounded p-2 received-message">
+                        <form action="/user" method="post">
+                            <input name="userid" type="hidden" value="{{ com.id }}">
+                            <h5>User: <button type="submit" class="btn btn-dark">{{ com.username }}</button></h5>
+                        </form>
+                        <p>{{ com.content }}</p>
+                        <p class="text-secondary text-sm-right">{{ com.cmnt_date }}</p>
+                    </div><hr>
+                {% endfor %}
+            </div>
+        </div>
+    </div><hr>
+    <a href="/"><button type="button" class="btn btn-dark">Home</button></a>
+    <p3>Location:</p3><br>
+    <a href="/location"><button type="button" class="btn btn-dark">Change location</button></a>
+    <div style="width: 100vw; height: 100vh" id="mapContainer"></div>
+    <script>
+        //Step 1: initialize communication with the platform
+        // Replace variable YOUR_API_KEY with your own apikey
+        var platform = new H.service.Platform({
+            'apikey': '{{ apikey }}'
+        });
+
+        const lat = {{ myinfo.latitude }};
+        const lng = {{ myinfo.longitude }};
+
+        var defaultLayers = platform.createDefaultLayers();
+        //Step 2: initialize a map - this map is centered over Europe
+        var map = new H.Map(document.getElementById('mapContainer'),
+            defaultLayers.vector.normal.map,
+            {
+                center: { lat: lat, lng: lng },
+                zoom: 13,
+                pixelRatio: window.devicePixelRatio || 1
+            }
+        );
+        // add a resize listener to make sure that the map occupies the whole container
+        window.addEventListener('resize', () => map.getViewPort().resize());
+        //Step 3: make the map interactive
+        // MapEvents enables the event system
+        // Behavior implements default interactions for pan/zoom (also on mobile touch environments)
+        var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+
+        // Create the default UI components
+        var ui = H.ui.UI.createDefault(map, defaultLayers);
+
+        // Marker code goes here
+        var LocationOfMarker = { lat: lat, lng: lng };
+
+        // Create a marker using the previously instantiated icon:
+        var marker = new H.map.Marker(LocationOfMarker);
+
+        // Add the marker to the map:
+        map.addObject(marker);
+
+        // Optionally,
+        //Show the marker in the center of the map
+        map.setCenter(LocationOfMarker)
+
+        //Zooming so that the marker can be clearly visible
+        map.setZoom(8)
+    </script>
+
+{% endblock %}

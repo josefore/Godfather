@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block map %}
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <!-- HERE JavaScript Libs & Style Sheets-->
+    <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+    <script type="text/javascript" src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+    <!-- HERE JavaScript Libs & Style Sheets end-->
+{% endblock %}
+
+{% block title %}
+    Reply No. {{ repid }}
+{% endblock %}
+
+{% block main %}
+    <h1 class="text-success">Reply accepted!</h1><br>
+    <h3>Reply to: {{ rep.title }}</h3>
+    <p>Description: {{ rep.description }}</p><hr><br>
+    <a href="#map"><button type="button" class="btn btn-info">Location</button></a><hr>
+    <form action="/myrequests" method="post">
+        <input name="reqst" type="hidden" value="{{ rep.request_id }}">
+        <button type="submit" class="btn btn-dark">See request</button>
+    </form>
+    <div class="row">
+        <div class="col-sm-6">
+            <form action="/user" method="post">
+                <input name="userid" type="hidden" value="{{ rep.id }}">
+                <h5>Replier: <button type="submit" class="btn btn-light">{{ rep.username }}</button></h5>
+            </form>
+        </div>
+        <div class="col-sm-3">
+            <p>Rating: <span class="badge badge-primary">{{ rep.rate }}</span></p>
+        </div>
+        <div class="col-sm-3">
+            <p>Votes: <span class="badge badge-primary">{{ rep.votes }}</span></p>
+        </div>
+    </div>
+    <p>{{ rep.details }}</p>
+    <p>Offer: </p><span class="badge badge-primary">{{ rep.offer }}</span>
+    <p>Deadline: </p><span class="badge badge-warning">{{ rep.deadline }}</span>
+    <p>Date: {{ rep.rep_date }}</p>
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#reject">Reject</button>
+    <div class="modal fade" id="reject">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Are you sure you want to reject this reply?</h4>
+                    <button type="button" class="close" data-dismiss="modal">x</button>
+                </div>
+                <div class="modal-body">
+                    <form action="/reject_reply" method="post">
+                        <input name="repid" type="hidden" value="{{ repid }}">
+                        <button type="submit" class="btn btn-dark">Yes</button>
+                    </form>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <form action="/conversation" method="post">
+        <input name="repid" type="hidden" value="{{ repid }}">
+        <button type="submit" class="btn btn-success">Start a conversation!</button>
+    </form>
+    <a href="/myrequests"><button type="button" class="btn btn-secondary">Back</button></a>
+    <a href="/help"><button type="button" class="btn btn-secondary">Requests</button></a><hr><br>
+    <h3 id="map">Location:</h3>
+    <div class="text-center" style="width: 50vw; height: 50vh" id="mapContainer"></div>
+    <script>
+        //Step 1: initialize communication with the platform
+        // Replace variable YOUR_API_KEY with your own apikey
+        var platform = new H.service.Platform({
+            'apikey': '{{ apikey }}'
+        });
+
+        const lat = {{ rep.lat }};
+        const lng = {{ rep.lng }};
+
+        var defaultLayers = platform.createDefaultLayers();
+        //Step 2: initialize a map - this map is centered over Europe
+        var map = new H.Map(document.getElementById('mapContainer'),
+            defaultLayers.vector.normal.map,
+            {
+                center: { lat: lat, lng: lng },
+                zoom: 13,
+                pixelRatio: window.devicePixelRatio || 1
+            }
+        );
+        // add a resize listener to make sure that the map occupies the whole container
+        window.addEventListener('resize', () => map.getViewPort().resize());
+        //Step 3: make the map interactive
+        // MapEvents enables the event system
+        // Behavior implements default interactions for pan/zoom (also on mobile touch environments)
+        var behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+
+        // Create the default UI components
+        var ui = H.ui.UI.createDefault(map, defaultLayers);
+
+        // Marker code goes here
+        var LocationOfMarker = { lat: lat, lng: lng };
+
+        // Create a marker using the previously instantiated icon:
+        var marker = new H.map.Marker(LocationOfMarker);
+
+        // Add the marker to the map:
+        map.addObject(marker);
+
+        // Optionally,
+        //Show the marker in the center of the map
+        map.setCenter(LocationOfMarker)
+
+        //Zooming so that the marker can be clearly visible
+        map.setZoom(8)
+    </script>
+{% endblock %}

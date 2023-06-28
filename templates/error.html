@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block map %}{% endblock %}
+
+{% block title %}
+    Error
+{% endblock %}
+
+{% block main %}
+<div class="text-center">
+    <h2>{{ errno }}</h2>
+    <p>{{ error }}</p>
+</div><br><br>
+
+<div class="text-center">
+    <a href="{{ redir }}"><button type="button" class="btn btn-secondary">Go back</button></a>
+</div>
+{% endblock %}
